@@ -44,7 +44,6 @@ Proporcionar a turistas, viajeros frecuentes y estudiantes internacionales una h
   &nbsp;&nbsp;
   <img src="screenshots/settings_screen.png" width="30%" alt="Configuración"/>
 </p>
-
 <p align="center">
   <em>ConvertScreen &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HistoryScreen &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SettingsScreen</em>
 </p>
