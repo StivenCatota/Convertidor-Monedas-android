@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "370141252422",
+    "project_id": "convertidormoneda-34267",
+    "storage_bucket": "convertidormoneda-34267.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:370141252422:android:87de8af62c7002cb9ef347",
+        "android_client_info": {
+          "package_name": "com.example.catotaerick.convertidormoneda"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChpPxFK6GeGbQstirc4kqgXR0Wn-Ciquo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
