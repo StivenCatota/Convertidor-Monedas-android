@@ -191,3 +191,4 @@ app/
 ## 📄 Licencia
 
 Este proyecto fue desarrollado con fines académicos.
+## Estado del Proyecto: Completado 
