@@ -1,9 +1,11 @@
 # Convertidor de Monedas
 
-![Estado](https://img.shields.io/badge/Estado-En%20desarrollo-yellow)
-![Plataforma](https://img.shields.io/badge/Plataforma-Android-green)
-![Lenguaje](https://img.shields.io/badge/Lenguaje-Kotlin-purple)
-![Arquitectura](https://img.shields.io/badge/Arquitectura-MVVM%20%2B%20Clean-blue)
+## 🧪 Cómo probar las funciones CRUD
+1. **Crear:** Haz clic en el botón "+" y añade una nueva conversión. Se guardará en Firebase en tiempo real.
+2. **Leer:** Verás la lista en la pantalla principal automáticamente.
+3. **Actualizar:** Mantén presionado o haz clic en un elemento de la lista para editar sus valores.
+4. **Borrar:** Desliza un elemento o usa el icono de papelera. Aparecerá un mensaje de confirmación y una opción de "Deshacer" (Undo).
+
 
 Aplicación móvil Android que permite convertir monedas en tiempo real, diseñada para turistas, viajeros frecuentes y estudiantes que viven fuera de su país.
 
