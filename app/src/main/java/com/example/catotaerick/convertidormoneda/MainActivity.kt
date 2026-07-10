@@ -8,189 +8,83 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import java.util.concurrent.TimeUnit
-// Importamos correctamente tu archivo Worker apuntando a tu paquete raíz
-import com.example.catotaerick.convertidormoneda.CurrencyWorker
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.catotaerick.convertidormoneda.databinding.ActivityMainBinding
-import com.example.catotaerick.convertidormoneda.viewmodel.HistoryViewModel
 import com.example.catotaerick.convertidormoneda.model.ApiState
+import com.example.catotaerick.convertidormoneda.ui.ConvertFragment
+import com.example.catotaerick.convertidormoneda.ui.HistoryFragment
+import com.example.catotaerick.convertidormoneda.ui.SettingsFragment
+import com.example.catotaerick.convertidormoneda.viewmodel.HistoryViewModel
 import com.google.firebase.auth.FirebaseAuth
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity( ) {
 
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: HistoryViewModel by viewModels()
+    private lateinit var viewModel: HistoryViewModel
 
-    // Tasas fijas de respaldo (Backup)
-    private val exchangeRates = mapOf(
-        "USD" to 1.0, "EUR" to 0.92, "GBP" to 0.79, "MXN" to 17.0, "JPY" to 150.0
+    // Tasas de cambio de respaldo en caso de que la API falle
+    private val exchangeRates = mutableMapOf(
+        "usd" to 1.0,
+        "eur" to 0.92,
+        "gbp" to 0.79,
+        "jpy" to 156.71,
+        "cad" to 1.37,
+        "aud" to 1.50,
+        "chf" to 0.90,
+        "cny" to 7.25,
+        "sek" to 10.68,
+        "nzd" to 1.63
     )
-/*
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // --- NUEVO: PEDIR PERMISOS PARA NOTIFICACIONES (Android 13+) ---
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        viewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
+
+        // Pedir permisos para notificaciones (Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             androidx.core.app.ActivityCompat.requestPermissions(
                 this,
                 arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
                 101
             )
         }
-
-        // Crear canal de notificaciones por seguridad antes de lanzar tareas
         createNotificationChannel()
+        scheduleDailyNotification()
 
-        // Configuración de la tarea periódica con WorkManager
-        val workRequest = PeriodicWorkRequestBuilder<CurrencyWorker>(24, TimeUnit.HOURS)
-            .setConstraints(Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build())
-            .build()
+        // Cargar el fragmento de conversión por defecto
+        loadFragment(ConvertFragment())
 
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "CurrencyUpdateWork",
-            ExistingPeriodicWorkPolicy.KEEP,
-            workRequest
-        )
-
-        // Pedimos las tasas reales al iniciar
-        viewModel.fetchRates()
-
-        // Observamos el estado de la API
-        viewModel.apiState.observe(this) { state ->
-            when (state) {
-                is ApiState.Loading -> {
-                    Toast.makeText(this, "Loading: Cargando tasas...", Toast.LENGTH_SHORT).show()
+        binding.bottomNavigation.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.navigation_convert -> {
+                    loadFragment(ConvertFragment())
+                    true
                 }
-                is ApiState.Success -> {
-                    Toast.makeText(this, "Success: Tasas cargadas correctamente", Toast.LENGTH_SHORT).show()
+                R.id.navigation_history -> {
+                    loadFragment(HistoryFragment())
+                    true
                 }
-                is ApiState.Error -> {
-                    Toast.makeText(this, "Error: ${state.message}", Toast.LENGTH_LONG).show()
+                R.id.navigation_settings -> {
+                    loadFragment(SettingsFragment())
+                    true
                 }
-            }
-        }
-
-        val currencies = exchangeRates.keys.toTypedArray()
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, currencies)
-        binding.spFrom.setAdapter(adapter)
-        binding.spTo.setAdapter(adapter)
-
-        binding.btnConvert.setOnClickListener { performConversion() }
-        binding.btnViewHistory.setOnClickListener {
-            startActivity(Intent(this, HistoryActivity::class.java))
-        }
-        binding.btnLogout.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
-        binding.btnOpenAddForm.setOnClickListener {
-            val addFragment = AddConversionFragment()
-            addFragment.show(supportFragmentManager, "AddConversion")
-        }
-    }
-
-*/
-override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    binding = ActivityMainBinding.inflate(layoutInflater)
-    setContentView(binding.root)
-
-    // 1. Pedir permisos para notificaciones (Android 13+)
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-        androidx.core.app.ActivityCompat.requestPermissions(
-            this,
-            arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-            101
-        )
-    }
-
-    // 2. Crear canal de notificaciones (Obligatorio)
-    createNotificationChannel()
-
-    // --- CAMBIO PARA CAPTURA: Lanzar notificación DE INMEDIATO ---
-    // Usamos OneTimeWorkRequestBuilder en lugar de Periodic para que salga ya mismo
-    val workRequest = androidx.work.OneTimeWorkRequestBuilder<CurrencyWorker>()
-        .build()
-
-    androidx.work.WorkManager.getInstance(this).enqueue(workRequest)
-    // -------------------------------------------------------------
-
-    // 3. Lógica de la API y Tasas
-    viewModel.fetchRates()
-
-    // Observamos el estado de la API para mostrar mensajes al usuario
-    viewModel.apiState.observe(this) { state ->
-        when (state) {
-            is com.example.catotaerick.convertidormoneda.model.ApiState.Loading -> {
-                Toast.makeText(this, "Cargando tasas reales...", Toast.LENGTH_SHORT).show()
-            }
-            is com.example.catotaerick.convertidormoneda.model.ApiState.Success -> {
-                Toast.makeText(this, "Tasas actualizadas desde internet", Toast.LENGTH_SHORT).show()
-            }
-            is com.example.catotaerick.convertidormoneda.model.ApiState.Error -> {
-                Toast.makeText(this, "Error de red: ${state.message}", Toast.LENGTH_LONG).show()
+                else -> false
             }
         }
     }
 
-    // 4. Configurar Selectores y Botones
-    val currencies = exchangeRates.keys.toTypedArray()
-    val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, currencies)
-    binding.spFrom.setAdapter(adapter)
-    binding.spTo.setAdapter(adapter)
-
-    binding.btnConvert.setOnClickListener { performConversion() }
-    binding.btnViewHistory.setOnClickListener {
-        startActivity(Intent(this, HistoryActivity::class.java))
-    }
-    binding.btnLogout.setOnClickListener {
-        com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
-    }
-    binding.btnOpenAddForm.setOnClickListener {
-        val addFragment = AddConversionFragment()
-        addFragment.show(supportFragmentManager, "AddConversion")
-    }
-}
-
-    private fun performConversion() {
-        val amountStr = binding.etAmount.text.toString()
-        val from = binding.spFrom.text.toString()
-        val to = binding.spTo.text.toString()
-
-        if (amountStr.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            Toast.makeText(this, "Completa los campos", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val amount = amountStr.toDouble()
-
-        // Si la API tuvo éxito, usamos esas tasas reales. Si no, usamos las fijas de respaldo.
-        val currentRates = if (viewModel.apiState.value is ApiState.Success) {
-            (viewModel.apiState.value as ApiState.Success).data
-        } else {
-            exchangeRates
-        }
-
-        val rateTo = currentRates[to.lowercase()] ?: currentRates[to.uppercase()] ?: 1.0
-        val rateFrom = currentRates[from.lowercase()] ?: currentRates[from.uppercase()] ?: 1.0
-        val result = amount * (rateTo / rateFrom)
-
-        viewModel.saveConversion(from, to, amount, result)
-        Toast.makeText(this, "Resultado Real: %.2f %s".format(result, to), Toast.LENGTH_LONG).show()
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .commit()
     }
 
     private fun createNotificationChannel() {
@@ -206,4 +100,17 @@ override fun onCreate(savedInstanceState: Bundle?) {
             notificationManager.createNotificationChannel(channel)
         }
     }
+
+    private fun scheduleDailyNotification() {
+        val dailyWorkRequest = PeriodicWorkRequestBuilder<CurrencyWorker>(
+            24, TimeUnit.HOURS // Repetir cada 24 horas
+        )
+            .setInitialDelay(10, TimeUnit.SECONDS) // Iniciar 10 segundos después de la instalación
+            .build()
+
+        androidx.work.WorkManager.getInstance(this).enqueue(dailyWorkRequest)
+    }
+
+    // La lógica de conversión y los botones antiguos se moverán al ConvertFragment
+    // o se adaptarán para interactuar con el ViewModel desde los fragmentos.
 }

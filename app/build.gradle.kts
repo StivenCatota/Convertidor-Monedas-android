@@ -14,7 +14,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+       // testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.catotaerick.convertidormoneda.MockTestRunner"
     }
 
     buildTypes {
@@ -71,4 +72,13 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+
+    // NOTA: Eliminamos la línea directa de tracing de aquí para resolverla abajo de forma global
+}
+
+// ESTO VA AL FINAL DE TU ARCHIVO (FUERA DE TODO LO DEMÁS)
+configurations.all {
+    resolutionStrategy {
+        force("androidx.tracing:tracing:1.1.0")
+    }
 }

@@ -3,8 +3,11 @@ package com.example.catotaerick.convertidormoneda.repository
 import com.example.catotaerick.convertidormoneda.model.ConversionRecord
 import com.google.firebase.database.*
 
-class CurrencyRepository {
-    private val database: DatabaseReference = FirebaseDatabase.getInstance("https://convertidormoneda-34267-default-rtdb.firebaseio.com").getReference("conversions")
+// ACTUALIZACIÓN: Ahora recibe la instancia por constructor (Inyección de dependencias)
+class CurrencyRepository(
+    private val firebaseDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
+) {
+    private val database: DatabaseReference = firebaseDatabase.getReference("conversions")
 
     // CREATE (Insert)
     fun saveConversion(record: ConversionRecord, callback: (Boolean) -> Unit) {
@@ -14,10 +17,10 @@ class CurrencyRepository {
             .addOnCompleteListener { task -> callback(task.isSuccessful) }
     }
 
-    // READ (GetAll - Tiempo real)
+    // READ (Optimizado para Tests y lecturas únicas con addListenerForSingleValueEvent)
     fun getConversions(userId: String, onDataChanged: (List<ConversionRecord>) -> Unit) {
         database.orderByChild("userId").equalTo(userId)
-            .addValueEventListener(object : ValueEventListener {
+            .addListenerForSingleValueEvent(object : ValueEventListener { // <-- CAMBIO AQUÍ para evitar lecturas vacías inmediatas
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val list = mutableListOf<ConversionRecord>()
                     for (child in snapshot.children) {
