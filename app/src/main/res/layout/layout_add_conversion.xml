@@ -11,7 +11,8 @@
         android:layout_width="40dp"
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
-        android:background="#DDDDDD"
+        android:background="?attr/colorTextSecondary"
+        android:alpha="0.3"
         android:layout_marginBottom="24dp"/>
 
     <TextView
@@ -20,12 +21,12 @@
         android:text="Nueva Conversión"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="#1E3A5F"
+        android:textColor="?attr/colorOnSurface"
         android:layout_marginBottom="24dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilAmount"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Cantidad a convertir"
@@ -39,7 +40,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilFrom"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="De moneda"
@@ -53,7 +54,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilTo"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="A moneda"
