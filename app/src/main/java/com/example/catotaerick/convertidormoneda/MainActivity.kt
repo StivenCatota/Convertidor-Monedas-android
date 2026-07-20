@@ -22,7 +22,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity( ) {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: HistoryViewModel
@@ -43,6 +43,10 @@ class MainActivity : AppCompatActivity( ) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ── IMPORTANTE: Aplicar el tema guardado ANTES de setContentView ──
+        SettingsFragment.applyTheme(this)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -59,8 +63,10 @@ class MainActivity : AppCompatActivity( ) {
         createNotificationChannel()
         scheduleDailyNotification()
 
-        // Cargar el fragmento de conversión por defecto
-        loadFragment(ConvertFragment())
+
+        if (savedInstanceState == null) {
+            loadFragment(ConvertFragment())
+        }
 
         binding.bottomNavigation.setOnItemSelectedListener {
             when (it.itemId) {
