@@ -11,6 +11,7 @@ import com.example.catotaerick.convertidormoneda.databinding.LayoutAddConversion
 import com.example.catotaerick.convertidormoneda.viewmodel.HistoryViewModel
 import com.example.catotaerick.convertidormoneda.model.ConversionRecord
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.example.catotaerick.convertidormoneda.model.ApiState
 
 class AddConversionFragment : BottomSheetDialogFragment() {
 
@@ -37,10 +38,16 @@ class AddConversionFragment : BottomSheetDialogFragment() {
         viewModel.fetchRates()
 
         // Configurar los selectores (Spinners)
-        val currencies = exchangeRates.keys.toTypedArray()
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, currencies)
-        binding.spFrom.setAdapter(adapter)
-        binding.spTo.setAdapter(adapter)
+        viewModel.apiState.observe(viewLifecycleOwner) { state ->
+            val currencies = if (state is ApiState.Success) {
+                state.data.keys.map { it.uppercase() }
+            } else {
+                exchangeRates.keys.toList()
+            }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, currencies)
+            binding.spFrom.setAdapter(adapter)
+            binding.spTo.setAdapter(adapter)
+        }
 
         // Lógica de edición: Rellenar campos si estamos editando
         viewModel.selectedRecord.observe(viewLifecycleOwner) { record ->

@@ -96,21 +96,27 @@ class HistoryViewModel : ViewModel() {
             timestamp = System.currentTimeMillis()
         )
         viewModelScope.launch {
-            repository.saveConversion(record) { /* éxito */ }
+            repository.saveConversion(record) { success ->
+                if (success) loadHistory()
+            }
         }
     }
 
     fun deleteRecord(record: ConversionRecord) {
         record.id?.let { id ->
             viewModelScope.launch {
-                repository.deleteConversion(id) { /* éxito */ }
+                repository.deleteConversion(id) { success ->
+                    if (success) loadHistory()
+                }
             }
         }
     }
 
     fun updateRecord(record: ConversionRecord) {
         viewModelScope.launch {
-            repository.updateConversion(record) { /* éxito */ }
+            repository.updateConversion(record) { success ->
+                if (success) loadHistory()
+            }
         }
     }
 }

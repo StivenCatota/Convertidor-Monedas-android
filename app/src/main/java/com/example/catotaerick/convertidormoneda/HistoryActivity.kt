@@ -9,6 +9,7 @@ import com.example.catotaerick.convertidormoneda.adapter.HistoryAdapter
 import com.example.catotaerick.convertidormoneda.databinding.ActivityHistoryBinding
 import com.example.catotaerick.convertidormoneda.viewmodel.HistoryViewModel
 import com.example.catotaerick.convertidormoneda.model.ConversionRecord
+import com.example.catotaerick.convertidormoneda.ui.SettingsFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 
@@ -22,13 +23,18 @@ class HistoryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ── IMPORTANTE: Aplicar el tema guardado ANTES de setContentView ──
+        SettingsFragment.applyTheme(this)
+
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // 1. Configurar UI básica
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbar.setNavigationOnClickListener { onBackPressed() }
+        binding.toolbar.setNavigationOnClickListener {
+            onBackPressed() }
 
         // 2. Configurar el Adapter con las acciones de EDITAR y BORRAR
         adapter = HistoryAdapter(

@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.ConvertidorMoneda"
-        parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Atributos personalizados (deben ir antes del style) -->
+    <attr name="colorBackground" format="color" />
+    <attr name="colorTextSecondary" format="color" />
+
+    <!-- Tema principal (Light) -->
+    <style name="Theme.ConvertidorMoneda" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 
         <!-- Color principal -->
         <item name="colorPrimary">#1E3A5F</item>
@@ -10,6 +14,12 @@
 
         <!-- Barra de estado -->
         <item name="android:statusBarColor">?attr/colorPrimary</item>
+
+        <!-- Atributos personalizados para modo oscuro -->
+        <item name="colorBackground">@color/colorBackground</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorTextSecondary">@color/colorTextSecondary</item>
 
     </style>
 
