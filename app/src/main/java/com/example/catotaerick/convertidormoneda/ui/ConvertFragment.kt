@@ -70,7 +70,7 @@ class ConvertFragment : Fragment() {
         btnConvert.setOnClickListener { performConversion() }
         btnSwapCurrencies.setOnClickListener { swapCurrencies() }
 
-        viewModel.fetchRates()
+
     }
 
     private fun setupCurrencySpinners(currencies: List<String>) {
@@ -92,7 +92,12 @@ class ConvertFragment : Fragment() {
             return
         }
 
-        val amount = amountStr.toDouble()
+        val amount = amountStr.toDoubleOrNull()
+        if (amount == null) {
+            Toast.makeText(requireContext(), "Ingresa un número válido", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val currentRates = if (viewModel.apiState.value is ApiState.Success) {
             (viewModel.apiState.value as ApiState.Success).data
         } else {
